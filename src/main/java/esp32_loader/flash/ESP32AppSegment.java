@@ -77,6 +77,30 @@ public class ESP32AppSegment {
                     type = SegmentType.IRAM;
                 }
             }
+            // Memory map from: https://github.com/espressif/esptool/blob/master/esptool/targets/esp32s3.py
+            case ESP32S3 -> {
+                if (LoadAddress >= 0x00000000 && LoadAddress < 0x00010000) {
+                    type = SegmentType.PADDING;
+                } else if (LoadAddress >= 0x3C000000 && LoadAddress < 0x3D000000) {
+                    type = SegmentType.EXT_DROM; // DROM (flash mapped data)
+                } else if (LoadAddress >= 0x3D000000 && LoadAddress < 0x3E000000) {
+                    type = SegmentType.DRAM1; // EXTRAM_DATA (external RAM)
+                } else if (LoadAddress >= 0x3FC88000 && LoadAddress < 0x3FD00000) {
+                    type = SegmentType.DRAM0; // Internal SRAM (DRAM)
+                } else if (LoadAddress >= 0x40000000 && LoadAddress < 0x40060000) {
+                    type = SegmentType.IROM0; // IROM_MASK (internal ROM)
+                } else if (LoadAddress >= 0x40370000 && LoadAddress < 0x403E0000) {
+                    type = SegmentType.IRAM0; // Internal SRAM (IRAM)
+                } else if (LoadAddress >= 0x42000000 && LoadAddress < 0x42800000) {
+                    type = SegmentType.EXT_IRAM; // IROM (flash mapped code)
+                } else if (LoadAddress >= 0x50000000 && LoadAddress < 0x50002000) {
+                    type = SegmentType.RTC_RAM; // RTC_DATA
+                } else if (LoadAddress >= 0x600FE000 && LoadAddress < 0x60100000) {
+                    type = SegmentType.RTC_RAM; // RTC_DRAM / RTC_IRAM
+                } else {
+                    type = SegmentType.UNKNOWN;
+                }
+            }
             case ESP32 -> {
                 /* determine access type via memory map */
                 if (LoadAddress >= 0x40800000 && LoadAddress <= 0x40800000 + 4194304) {
